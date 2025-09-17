@@ -1,5 +1,3 @@
-import 'dart:ui';
-
 import 'package:auth0_flutter/auth0_flutter.dart';
 import 'package:auth0_flutter/auth0_flutter_web.dart';
 import 'package:flutter/foundation.dart';
@@ -99,7 +97,7 @@ class _ExampleAppState extends State<ExampleApp> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               const Text(
-                "Weather App",
+                'Weather App',
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
               _user != null
@@ -107,10 +105,10 @@ class _ExampleAppState extends State<ExampleApp> {
                       onPressed: logout,
                       style: ButtonStyle(
                         backgroundColor:
-                            MaterialStateProperty.all(Colors.white24),
+                            WidgetStateProperty.all(Colors.white24),
                       ),
                       child: const Text(
-                        "Logout",
+                        'Logout',
                         style: TextStyle(color: Colors.white),
                       ),
                     )
@@ -118,10 +116,10 @@ class _ExampleAppState extends State<ExampleApp> {
                       onPressed: login,
                       style: ButtonStyle(
                         backgroundColor:
-                            MaterialStateProperty.all(Colors.white24),
+                            WidgetStateProperty.all(Colors.white24),
                       ),
                       child: const Text(
-                        "Login",
+                        'Login',
                         style: TextStyle(color: Colors.white),
                       ),
                     ),
