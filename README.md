@@ -1,6 +1,6 @@
-# Flutter Sample App
+# Flutter Weather App
 
-This sample app demonstrates the integration of the Auth0 Flutter SDK into a Flutter app. The sample is a companion to the [Auth0 Flutter Quickstart](https://auth0.com/docs/quickstart/native/flutter/interactive).
+This Weather app demonstrates the integration of the Auth0 Flutter SDK into a Flutter app. The application is a companion to the [Auth0 Flutter Quickstart](https://auth0.com/docs/quickstart/native/flutter/interactive).
 
 ## Quick Start
 
