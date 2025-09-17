@@ -63,7 +63,7 @@ Go to the settings page of your [Auth0 application](https://manage.auth0.com/#/a
 - Allowed Logout URLs: `http://localhost:3000`
 - Allowed Web Origins: `http://localhost:3000`
 
-## 2. Run the sample
+## 2. Run the application
 
 Use the [Flutter CLI](https://docs.flutter.dev/reference/flutter-cli) to run the app.
 
