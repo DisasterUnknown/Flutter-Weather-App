@@ -7,8 +7,8 @@ This sample app demonstrates the integration of the Auth0 Flutter SDK into a Flu
 ### Clone and install
 
 ```sh
-git clone <your-repo-url>
-cd sample
+git clone https://github.com/DisasterUnknown/Flutter-Weather-App
+cd Flutter-Weather-App
 flutter pub get
 ```
 
