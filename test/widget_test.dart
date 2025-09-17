@@ -12,7 +12,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
-import 'package:sample/example_app.dart';
+import 'package:sample/view/layout.dart';
 
 import 'widget_test.mocks.dart';
 
