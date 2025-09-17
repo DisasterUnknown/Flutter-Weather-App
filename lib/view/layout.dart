@@ -99,7 +99,7 @@ class _ExampleAppState extends State<ExampleApp> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               const Text(
-                "Welcome to Online Weather App",
+                "Weather App",
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
               _user != null
@@ -135,7 +135,7 @@ class _ExampleAppState extends State<ExampleApp> {
             children: [
               Expanded(
                 child: _user != null
-                    ? UserWidget(user: _user)
+                    ? const HomePage()
                     : const HeroWidget(),
               ),
             ],

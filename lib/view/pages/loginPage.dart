@@ -1,4 +1,3 @@
-import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -7,7 +6,9 @@ class HeroWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const String heroText = "WELCOME TO WEATHER APP\nLogin to Continue!";
+    const String heroText = 'WELCOME TO WEATHER APP\nLogin to Continue!';
+    final screenWidth = MediaQuery.of(context).size.width;
+    final double fontSize = screenWidth < 600 ? 20 : 72;
 
     return Center(
       child: Column(
@@ -21,7 +22,7 @@ class HeroWidget extends StatelessWidget {
                 heroText,
                 textAlign: TextAlign.center,
                 style: GoogleFonts.montserrat(
-                  fontSize: 72,
+                  fontSize: fontSize,
                   fontWeight: FontWeight.bold,
                   foreground: Paint()
                     ..style = PaintingStyle.stroke
@@ -34,7 +35,7 @@ class HeroWidget extends StatelessWidget {
                 heroText,
                 textAlign: TextAlign.center,
                 style: GoogleFonts.montserrat(
-                  fontSize: 72,
+                  fontSize: fontSize,
                   fontWeight: FontWeight.bold,
                   color: Colors.black,
                   shadows: [
