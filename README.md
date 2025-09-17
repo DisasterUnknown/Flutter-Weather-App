@@ -2,18 +2,53 @@
 
 This sample app demonstrates the integration of the Auth0 Flutter SDK into a Flutter app. The sample is a companion to the [Auth0 Flutter Quickstart](https://auth0.com/docs/quickstart/native/flutter/interactive).
 
+## Quick Start
+
+### Clone and install
+
+```sh
+git clone <your-repo-url>
+cd sample
+flutter pub get
+```
+
+### Configure Auth0 and environment
+
+- In your Auth0 Application (Web):
+  - Allowed Callback URLs: `http://localhost:3000`
+  - Allowed Logout URLs: `http://localhost:3000`
+  - Allowed Web Origins: `http://localhost:3000`
+- Create `.env` in the project root (rename `.env.example` if present):
+  ```sh
+  AUTH0_DOMAIN=undefined.auth0.com
+  AUTH0_CLIENT_ID={yourClientId}
+  AUTH0_CUSTOM_SCHEME=com.auth0.sample
+  API_KEY={yourOpenWeatherApiKey}
+  ```
+
+### Run
+
+- VS Code: press F5. Select your desired device (Chrome for Web).
+- Terminal (Web with Auth0 on port 3000):
+  ```sh
+  flutter run -d chrome --web-port 3000 --web-renderer html
+  ```
+
+### What you’ll see
+
+- Logged out: a welcome `HeroWidget` asking you to log in.
+- Logged in: `HomePage` shows weather cards for cities in `lib/core/cities.json` using `API_KEY`.
+
+### Tips
+
+- If web auth redirects to a different port, ensure you started on `--web-port 3000` and Auth0 Allowed URLs use `http://localhost:3000`.
+- If weather data is empty, verify `API_KEY` in `.env` (OpenWeatherMap) and network access.
+
 ## Requirements
 
 - Flutter 3+
-- Xcode 14.x / 15.x (for iOS/macOS)
 - Android Studio 4+ (for Android)
-
-> [!NOTE]
-> On iOS 17.4+ and macOS 14.4+ it is possible to use Universal Links as callback and logout URLs. auth0_flutter will fall back to using a custom URL scheme on older iOS / macOS versions.
->
-> **This feature requires Xcode 15.3+ and a paid Apple Developer account**.
->
-> If you do not have a paid Apple Developer account, skip **step 3** and set the `useHTTPS` parameter to `false` in the `login()` and `logout()` calls at `lib/example_app.dart`.
+- Chrome (for Web)
 
 > [!IMPORTANT]
 > On every step, if you have a [custom domain](https://auth0.com/docs/customize/custom-domains), replace the `YOUR_AUTH0_DOMAIN` and `undefined.auth0.com` placeholders with your custom domain instead of the value from the settings page.
@@ -22,38 +57,13 @@ This sample app demonstrates the integration of the Auth0 Flutter SDK into a Flu
 
 ### 📱 Mobile/Desktop
 
-Go to the settings page of your [Auth0 application](https://manage.auth0.com/#/applications/) and add the following URLs to **Allowed Callback URLs** and **Allowed Logout URLs**, depending on the platform you want to use.
+Go to the settings page of your [Auth0 application](https://manage.auth0.com/#/applications/) and add the following URLs to **Allowed Callback URLs** and **Allowed Logout URLs** for Android.
 
 #### Android
 
 ```text
 SCHEME://YOUR_AUTH0_DOMAIN/android/YOUR_PACKAGE_NAME/callback
 ```
-
-#### iOS
-
-```text
-https://YOUR_AUTH0_DOMAIN/ios/YOUR_BUNDLE_IDENTIFIER/callback,
-YOUR_BUNDLE_IDENTIFIER://YOUR_AUTH0_DOMAIN/ios/YOUR_BUNDLE_IDENTIFIER/callback
-```
-
-#### macOS
-
-```text
-https://YOUR_AUTH0_DOMAIN/macos/YOUR_BUNDLE_IDENTIFIER/callback,
-YOUR_BUNDLE_IDENTIFIER://YOUR_AUTH0_DOMAIN/macos/YOUR_BUNDLE_IDENTIFIER/callback
-```
-
-<details>
-  <summary>Example</summary>
-
-If your iOS bundle identifier were `com.example.MyApp` and your Auth0 Domain were `example.us.auth0.com`, then this value would be:
-
-```text
-https://example.us.auth0.com/ios/com.example.MyApp/callback,
-com.example.MyApp://example.us.auth0.com/ios/com.example.MyApp/callback
-```
-</details>
 
 > [!IMPORTANT]
 > Make sure that the Auth0 application type is **Native**. Otherwise, you might run into errors due to the different configurations of other application types.
@@ -90,40 +100,7 @@ In the sample, we are using values referenced from `android/app/src/main/res/val
 </resources>
 ```
 
-## 3. iOS/macOS: Configure the associated domain
-
-### Configure the entitlements
-
-Open `ios/Runner.xcodeproj` (or `macos/Runner.xcodeproj`, for macOS) in Xcode and go to the settings of the **Runner** target. In the **Signing & Capabilities** tab, change the default bundle identifier from `com.auth0.samples.SwiftSample` to another value of your choosing. Then, ensure the **Automatically manage signing** box is checked, and that your Apple Team is selected.
-
-Under **Associated Domains**, find the following entry:
-
-```text
-webcredentials:YOUR_AUTH0_DOMAIN
-```
-
-Replace the `YOUR_AUTH0_DOMAIN` placeholder with the domain of your Auth0 application.
-
-<details>
-  <summary>Example</summary>
-
-If your Auth0 Domain were `example.us.auth0.com`, then this value would be:
-
-```text
-webcredentials:example.us.auth0.com
-```
-</details>
-
-### Configure the Team ID and bundle identifier
-
-Open the settings page of your Auth0 application, scroll to the end, and open **Advanced Settings > Device Settings**. In the **iOS** section, set **Team ID** to your [Apple Team ID](https://developer.apple.com/help/account/manage-your-team/locate-your-team-id/), and **App ID** to the app's bundle identifier.
-
-![Screenshot of the iOS section inside the Auth0 application settings page](https://github.com/auth0/Auth0.swift/assets/5055789/7eb5f6a2-7cc7-4c70-acf3-633fd72dc506)
-
-This will add the app to your Auth0 tenant's `apple-app-site-association` file.
-
-> [!NOTE]
-> For the associated domain to work, the app must be signed with your team certificate **even when building for the iOS simulator**. Make sure you are using the Apple Team whose Team ID is configured in the settings page of your Auth0 application.
+ 
 
 ## 4. Run the sample
 
@@ -143,11 +120,11 @@ Ensure you have at least one emulator/simulator running. If you have multiple ru
 flutter run -d chrome --web-port 3000 --web-renderer html
 ```
 
-## Issue Reporting
+## Credits
 
-For general support or usage questions, use the [Auth0 Community](https://community.auth0.com/c/sdks/5) forums or raise a [support ticket](https://support.auth0.com/). Only [raise an issue](https://github.com/auth0-samples/auth0-flutter-samples/issues) if you have found a bug or want to request a feature.
+This `README.md` is maintained by an AI developer assistant.
 
-**Do not report security vulnerabilities on the public GitHub issue tracker.** The [Responsible Disclosure Program](https://auth0.com/responsible-disclosure-policy) details the procedure for disclosing security issues.
+ 
 
 ---
 
