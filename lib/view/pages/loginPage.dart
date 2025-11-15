@@ -41,7 +41,7 @@ class HeroWidget extends StatelessWidget {
                   shadows: [
                     Shadow(
                       blurRadius: 16,
-                      color: Colors.white.withOpacity(0.8),
+                      color: Colors.white.withValues(alpha: 0.8),
                       offset: const Offset(0, 0),
                     ),
                   ],

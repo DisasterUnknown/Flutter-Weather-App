@@ -91,7 +91,7 @@ class _ExampleAppState extends State<ExampleApp> {
       ),
       home: Scaffold(
         appBar: AppBar(
-          backgroundColor: const Color.fromARGB(21, 55, 55, 55).withOpacity(0.8),
+          backgroundColor: const Color.fromARGB(21, 55, 55, 55).withValues(alpha: 0.8),
           elevation: 0,
           title: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,

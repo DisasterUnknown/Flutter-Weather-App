@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/services.dart' show rootBundle;
+import 'package:sample/view/widgets/city_weather_card.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -41,7 +42,7 @@ class _HomePageState extends State<HomePage> {
         {
           'id': city['CityCode'],
           'appid': apiKey,
-          'units': 'metric', 
+          'units': 'metric',
         },
       );
 
@@ -52,7 +53,7 @@ class _HomePageState extends State<HomePage> {
           cityWeatherList.add(data);
         }
       } catch (e) {
-        print("Error fetching ${city['CityName']}: $e");
+        debugPrint("Error fetching ${city['CityName']}: $e");
       }
     }
     setState(() {});
@@ -71,177 +72,43 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     final double fontSize = screenWidth < 600 ? 9 : 12;
-    final isLarge = screenWidth > 600;
-    final cardWidth = isLarge
-        ? (screenWidth - 72) / 2 // with on > mobile
-        : screenWidth - 48; // width on mobile
 
     return Scaffold(
       body: cityWeatherList.isEmpty
           ? const Center(child: CircularProgressIndicator())
-          : SingleChildScrollView(
-              padding: const EdgeInsets.all(12),
-              child: Center(
-                // center 
-                child: Wrap(
-                  spacing: 24,
-                  runSpacing: 24,
-                  alignment: WrapAlignment.center, 
-                  children: List.generate(cityWeatherList.length, (index) {
-                    final city = cities[index];
-                    final weather = cityWeatherList[index];
-                    final gradient = gradients[index % gradients.length];
+          : LayoutBuilder(
+              builder: (context, constraints) {
+                final bool isLarge = constraints.maxWidth >= 600;
 
-                    final sunrise = DateTime.fromMillisecondsSinceEpoch(
-                            weather['sys']['sunrise'] * 1000,
-                            isUtc: true)
-                        .add(Duration(seconds: weather['timezone']));
-                    final sunset = DateTime.fromMillisecondsSinceEpoch(
-                            weather['sys']['sunset'] * 1000,
-                            isUtc: true)
-                        .add(Duration(seconds: weather['timezone']));
-
-                    return SizedBox(
-                      width: cardWidth,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(16),
-                          boxShadow: const [
-                            BoxShadow(
-                              color: Colors.black26,
-                              blurRadius: 6,
-                              offset: Offset(0, 3),
-                            ),
-                          ],
-                        ),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            // Location data
-                            Container(
-                              decoration: BoxDecoration(
-                                gradient: LinearGradient(
-                                  colors: gradient,
-                                  begin: Alignment.topLeft,
-                                  end: Alignment.bottomRight,
-                                ),
-                                borderRadius: const BorderRadius.only(
-                                    topLeft: Radius.circular(16),
-                                    topRight: Radius.circular(16)),
-                              ),
-                              padding: const EdgeInsets.all(12),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  // Left
-                                  Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        city['CityName'],
-                                        style: const TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.bold),
-                                      ),
-                                      const SizedBox(height: 4),
-                                      Text(
-                                        weather['weather'][0]['description']
-                                            .toUpperCase(),
-                                        style: const TextStyle(
-                                            color: Colors.white70,
-                                            fontSize: 12),
-                                      ),
-                                    ],
-                                  ),
-                                  // Right
-                                  Text(
-                                    "${weather['main']['temp'].toStringAsFixed(1)}°C",
-                                    style: const TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 28,
-                                        fontWeight: FontWeight.bold),
-                                  ),
-                                ],
-                              ),
-                            ),
-
-                            // Bottom data
-                            Container(
-                              decoration: BoxDecoration(
-                                color: Colors.grey[800],
-                                borderRadius: const BorderRadius.only(
-                                    bottomLeft: Radius.circular(16),
-                                    bottomRight: Radius.circular(16)),
-                              ),
-                              padding: const EdgeInsets.all(12),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  // Col 1
-                                  Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                          "Pressure: ${weather['main']['pressure']} hPa",
-                                          style: TextStyle(
-                                              color: Colors.white,
-                                              fontSize: fontSize)),
-                                      Text(
-                                          "Humidity: ${weather['main']['humidity']}%",
-                                          style: TextStyle(
-                                              color: Colors.white,
-                                              fontSize: fontSize)),
-                                      Text(
-                                          "Visibility: ${(weather['visibility'] / 1000).toStringAsFixed(1)} km",
-                                          style: TextStyle(
-                                              color: Colors.white,
-                                              fontSize: fontSize)),
-                                    ],
-                                  ),
-                                  // Col 2
-                                  Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                          "${weather['wind']['speed']}m/s, ${weather['wind']['deg']}°",
-                                          style: TextStyle(
-                                              color: Colors.white,
-                                              fontSize: fontSize)),
-                                    ],
-                                  ),
-                                  // Col 3
-                                  Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                          "Sunrise: ${sunrise.hour.toString().padLeft(2, '0')}:${sunrise.minute.toString().padLeft(2, '0')}",
-                                          style: TextStyle(
-                                              color: Colors.white,
-                                              fontSize: fontSize)),
-                                      Text(
-                                          "Sunset: ${sunset.hour.toString().padLeft(2, '0')}:${sunset.minute.toString().padLeft(2, '0')}",
-                                          style: TextStyle(
-                                              color: Colors.white,
-                                              fontSize: fontSize)),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
+                return Padding(
+                  padding: EdgeInsets.symmetric(
+                      horizontal: (isLarge ? 100 : 8), vertical: 16),
+                  child: Center(
+                    child: GridView.builder(
+                      gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+                        maxCrossAxisExtent: isLarge ? 600 : 500,
+                        crossAxisSpacing: 24,
+                        mainAxisSpacing: 24,
+                        childAspectRatio: isLarge ? 2.0 : 1.6,
                       ),
-                    );
-                  }),
-                ),
-              ),
+                      physics: const BouncingScrollPhysics(),
+                      itemCount: cityWeatherList.length,
+                      itemBuilder: (context, index) {
+                        final city = cities[index];
+                        final weather = cityWeatherList[index];
+                        final gradient = gradients[index % gradients.length];
+
+                        return CityWeatherCard(
+                          city: city,
+                          weather: weather,
+                          gradient: gradient,
+                          fontSize: fontSize,
+                        );
+                      },
+                    ),
+                  ),
+                );
+              },
             ),
     );
   }
