@@ -115,7 +115,7 @@ class _ExampleAppState extends State<ExampleApp> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         const Text(
-                          'Not logged again!',
+                          'Login Again!',
                           style: TextStyle(color: Colors.white),
                         ),
                         const SizedBox(height: 16),
