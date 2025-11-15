@@ -6,6 +6,7 @@ class CityWeatherCard extends StatelessWidget {
   final Map<String, dynamic> weather;
   final List<Color> gradient;
   final double fontSize;
+  final VoidCallback? onRemove; // new
 
   const CityWeatherCard({
     super.key,
@@ -13,6 +14,7 @@ class CityWeatherCard extends StatelessWidget {
     required this.weather,
     required this.gradient,
     required this.fontSize,
+    this.onRemove,
   });
 
   @override
@@ -66,7 +68,6 @@ class CityWeatherCard extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        // City Name and Time
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -90,8 +91,6 @@ class CityWeatherCard extends StatelessWidget {
                             ),
                           ],
                         ),
-
-                        // Icon and Clouds
                         Row(
                           children: [
                             const Icon(
@@ -101,7 +100,8 @@ class CityWeatherCard extends StatelessWidget {
                             ),
                             const SizedBox(width: 8),
                             Text(
-                              weather['weather'][0]['description'].toUpperCase(),
+                              weather['weather'][0]['description']
+                                  .toUpperCase(),
                               style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 14,
@@ -112,7 +112,7 @@ class CityWeatherCard extends StatelessWidget {
                       ],
                     ),
 
-                    // right: Min/Max Temperature
+                    // right: Temp
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.end,
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -149,20 +149,23 @@ class CityWeatherCard extends StatelessWidget {
                   ],
                 ),
 
-                const Positioned(
-                  top: -4,
-                  right: -4,
-                  child: Icon(
-                    Icons.close,
-                    color: Colors.white,
-                    size: 18,
+                Positioned(
+                  top: 0,
+                  right: 0,
+                  child: GestureDetector(
+                    onTap: onRemove,
+                    child: const Icon(
+                      Icons.close,
+                      color: Colors.white,
+                      size: 18,
+                    ),
                   ),
                 ),
               ],
             ),
           ),
 
-          // Body
+          // Body (unchanged)
           Container(
             decoration: BoxDecoration(
               color: Colors.grey[800],
@@ -175,7 +178,6 @@ class CityWeatherCard extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                // Col 1
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -195,10 +197,7 @@ class CityWeatherCard extends StatelessWidget {
                     ],
                   ),
                 ),
-
                 Container(width: 1, height: 50, color: Colors.grey),
-
-                // Col 2
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
@@ -218,10 +217,7 @@ class CityWeatherCard extends StatelessWidget {
                     ],
                   ),
                 ),
-
                 Container(width: 1, height: 50, color: Colors.grey),
-
-                // Col 3
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.end,

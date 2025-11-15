@@ -3,14 +3,11 @@ import 'package:auth0_flutter/auth0_flutter_web.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-
-import '../core/constants.dart';
-import 'pages/loginPage.dart';
-import 'pages/homePage.dart';
+import 'pages/home_page.dart';
 
 class ExampleApp extends StatefulWidget {
   final Auth0? auth0;
-  const ExampleApp({this.auth0, final Key? key}) : super(key: key);
+  const ExampleApp({this.auth0, Key? key}) : super(key: key);
 
   @override
   State<ExampleApp> createState() => _ExampleAppState();
@@ -18,126 +15,116 @@ class ExampleApp extends StatefulWidget {
 
 class _ExampleAppState extends State<ExampleApp> {
   UserProfile? _user;
-
   late Auth0 auth0;
   late Auth0Web auth0Web;
+  bool _loading = true;
+  bool _webLoginCalled = false;
 
   @override
   void initState() {
     super.initState();
+
     auth0 = widget.auth0 ??
         Auth0(dotenv.env['AUTH0_DOMAIN']!, dotenv.env['AUTH0_CLIENT_ID']!);
     auth0Web =
         Auth0Web(dotenv.env['AUTH0_DOMAIN']!, dotenv.env['AUTH0_CLIENT_ID']!);
 
+    _checkSession();
+  }
+
+  /// Checks if the user is already logged in
+  void _checkSession() async {
+    setState(() => _loading = true);
+
     if (kIsWeb) {
-      auth0Web.onLoad().then((final credentials) => setState(() {
-            _user = credentials?.user;
-          }));
+      try {
+        final credentials = await auth0Web.onLoad();
+        setState(() {
+          _user = credentials?.user;
+          _loading = false;
+        });
+
+        // Trigger login if not logged in yet
+        if (_user == null) {
+          WidgetsBinding.instance.addPostFrameCallback((_) => loginWeb());
+        }
+      } catch (e) {
+        debugPrint('Error checking web session: $e');
+        setState(() => _loading = false);
+      }
+    } else {
+      loginMobile();
     }
   }
 
-  Future<void> login() async {
-    try {
-      if (kIsWeb) {
-        return auth0Web.loginWithRedirect(
-            redirectUrl: 'http://localhost:3000/callback');
-      }
+  /// Web login (redirect)
+  Future<void> loginWeb() async {
+    if (_webLoginCalled) return;
+    _webLoginCalled = true;
 
-      var credentials = await auth0
+    try {
+      await auth0Web.loginWithRedirect(
+        redirectUrl: kReleaseMode
+            ? 'https://your-production-domain.com/callback'
+            : 'http://localhost:3000/callback',
+      );
+    } catch (e) {
+      debugPrint('Web login error: $e');
+      setState(() => _loading = false);
+    }
+  }
+
+  /// Mobile login
+  Future<void> loginMobile() async {
+    try {
+      final credentials = await auth0
           .webAuthentication(scheme: dotenv.env['AUTH0_CUSTOM_SCHEME'])
           .login(useHTTPS: true);
 
       setState(() {
         _user = credentials.user;
+        _loading = false;
       });
     } catch (e) {
-      print(e);
+      debugPrint('Mobile login error: $e');
+      setState(() => _loading = false);
     }
   }
 
-  Future<void> logout() async {
-    try {
-      if (kIsWeb) {
-        await auth0Web.logout(returnToUrl: 'http://localhost:3000');
-        setState(() {
-          _user = null;
-        });
-      } else {
-        await auth0
-            .webAuthentication(scheme: dotenv.env['AUTH0_CUSTOM_SCHEME'])
-            .logout(useHTTPS: true);
-        setState(() {
-          _user = null;
-        });
-      }
-    } catch (e) {
-      print(e);
+  /// Trigger login dynamically (button, etc.)
+  void triggerLogin() {
+    if (kIsWeb) {
+      loginWeb();
+    } else {
+      loginMobile();
     }
   }
 
   @override
-  Widget build(final BuildContext context) {
+  Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        scaffoldBackgroundColor: Colors.black,
-        brightness: Brightness.dark,
-        primaryColor: Colors.white,
-        textTheme: const TextTheme(
-          bodyMedium: TextStyle(color: Colors.white),
-          titleLarge: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-        ),
-      ),
+      theme: ThemeData.dark().copyWith(scaffoldBackgroundColor: Colors.black),
       home: Scaffold(
-        appBar: AppBar(
-          backgroundColor: const Color.fromARGB(21, 55, 55, 55).withValues(alpha: 0.8),
-          elevation: 0,
-          title: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text(
-                'Weather App',
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-              _user != null
-                  ? ElevatedButton(
-                      onPressed: logout,
-                      style: ButtonStyle(
-                        backgroundColor:
-                            WidgetStateProperty.all(Colors.white24),
-                      ),
-                      child: const Text(
-                        'Logout',
-                        style: TextStyle(color: Colors.white),
-                      ),
-                    )
-                  : ElevatedButton(
-                      onPressed: login,
-                      style: ButtonStyle(
-                        backgroundColor:
-                            WidgetStateProperty.all(Colors.white24),
-                      ),
-                      child: const Text(
-                        'Login',
-                        style: TextStyle(color: Colors.white),
-                      ),
-                    ),
-            ],
-          ),
-        ),
-        body: Padding(
-          padding: const EdgeInsets.all(padding),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Expanded(
-                child: _user != null
-                    ? const HomePage()
-                    : const HeroWidget(),
-              ),
-            ],
-          ),
+        body: Center(
+          child: _loading
+              ? const CircularProgressIndicator(color: Colors.white)
+              : (_user != null
+                  ? const HomePage()
+                  : Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Text(
+                          'Not logged again!',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                        const SizedBox(height: 16),
+                        ElevatedButton(
+                          onPressed: triggerLogin,
+                          child: const Text('Login'),
+                        ),
+                      ],
+                    )),
         ),
       ),
     );
