@@ -29,38 +29,34 @@ class _ExampleAppState extends State<ExampleApp> {
     auth0Web =
         Auth0Web(dotenv.env['AUTH0_DOMAIN']!, dotenv.env['AUTH0_CLIENT_ID']!);
 
-    _checkSession();
-  }
-
-  /// Checks if the user is already logged in
-  void _checkSession() async {
-    setState(() => _loading = true);
-
     if (kIsWeb) {
-      try {
-        final credentials = await auth0Web.onLoad();
-        setState(() {
-          _user = credentials?.user;
-          _loading = false;
-        });
-
-        // Trigger login if not logged in yet
-        if (_user == null) {
-          WidgetsBinding.instance.addPostFrameCallback((_) => loginWeb());
-        }
-      } catch (e) {
-        debugPrint('Error checking web session: $e');
-        setState(() => _loading = false);
-      }
+      _handleWebRedirect();
     } else {
-      loginMobile();
+      WidgetsBinding.instance.addPostFrameCallback((_) => triggerLogin());
     }
   }
 
-  /// Web login (redirect)
+  Future<void> _handleWebRedirect() async {
+    try {
+      final credentials = await auth0Web.onLoad();
+      if (credentials != null) {
+        setState(() {
+          _user = credentials.user;
+          _loading = false;
+        });
+      } else {
+        WidgetsBinding.instance.addPostFrameCallback((_) => triggerLogin());
+      }
+    } catch (e) {
+      debugPrint('Error handling web redirect: $e');
+      setState(() => _loading = false);
+    }
+  }
+
   Future<void> loginWeb() async {
     if (_webLoginCalled) return;
     _webLoginCalled = true;
+    setState(() => _loading = true);
 
     try {
       await auth0Web.loginWithRedirect(
@@ -74,8 +70,9 @@ class _ExampleAppState extends State<ExampleApp> {
     }
   }
 
-  /// Mobile login
   Future<void> loginMobile() async {
+    setState(() => _loading = true);
+
     try {
       final credentials = await auth0
           .webAuthentication(scheme: dotenv.env['AUTH0_CUSTOM_SCHEME'])
@@ -91,8 +88,8 @@ class _ExampleAppState extends State<ExampleApp> {
     }
   }
 
-  /// Trigger login dynamically (button, etc.)
   void triggerLogin() {
+    if (_user != null) return;
     if (kIsWeb) {
       loginWeb();
     } else {
@@ -113,15 +110,50 @@ class _ExampleAppState extends State<ExampleApp> {
                   ? const HomePage()
                   : Column(
                       mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        const Text(
-                          'Login Again!',
-                          style: TextStyle(color: Colors.white),
+                        Icon(
+                          Icons.account_circle,
+                          size: 100,
+                          color: Colors.white70,
                         ),
-                        const SizedBox(height: 16),
+                        const SizedBox(height: 24),
+                        const Text(
+                          'Welcome Back!',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 28,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 12),
+                        const Text(
+                          'Please log in to continue',
+                          style: TextStyle(
+                            color: Colors.white70,
+                            fontSize: 16,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 32),
                         ElevatedButton(
                           onPressed: triggerLogin,
-                          child: const Text('Login'),
+                          style: ElevatedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 40, vertical: 14),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            backgroundColor: Colors.blueAccent,
+                          ),
+                          child: const Text(
+                            'Login',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                         ),
                       ],
                     )),
