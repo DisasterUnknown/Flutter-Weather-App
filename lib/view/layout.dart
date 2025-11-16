@@ -112,7 +112,7 @@ class _ExampleAppState extends State<ExampleApp> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        Icon(
+                        const Icon(
                           Icons.account_circle,
                           size: 100,
                           color: Colors.white70,

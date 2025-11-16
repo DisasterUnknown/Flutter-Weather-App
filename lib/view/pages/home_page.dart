@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/services.dart' show rootBundle;
+import 'package:intl/intl.dart';
+import 'package:sample/view/pages/city_weather_page.dart';
 import 'package:sample/view/widgets/city_weather_card.dart';
 
 class HomePage extends StatefulWidget {
@@ -116,115 +118,135 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
     final double fontSize = screenWidth < 600 ? 9 : 12;
     final bool isLarge = screenWidth >= 600;
 
     return Scaffold(
-      body: cityWeatherList.isEmpty
-          ? const Center(child: CircularProgressIndicator())
-          : SingleChildScrollView(
+      body: SingleChildScrollView(
               child: Column(
                 children: [
                   Container(
                     padding: EdgeInsets.symmetric(
                         horizontal: (isLarge ? 100 : 8), vertical: 16),
                     child: Center(
-                      child: Column(
-                        children: [
-                          // Header
-                          Container(
-                            margin: const EdgeInsets.only(bottom: 24, top: 68),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(
-                                  Icons.cloud,
-                                  size: isLarge ? 48 : 32,
-                                  color: Colors.white,
-                                ),
-                                const SizedBox(width: 8),
-                                Text(
-                                  'Weather App',
-                                  style: TextStyle(
-                                    fontSize: isLarge ? 32 : 24,
-                                    fontWeight: FontWeight.bold,
+                      child: ConstrainedBox(
+                        constraints: BoxConstraints(
+                          minHeight: screenHeight - 115,
+                        ),
+                        child: Column(
+                          children: [
+                            // Header
+                            Container(
+                              margin: const EdgeInsets.only(bottom: 24, top: 68),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                    Icons.cloud,
+                                    size: isLarge ? 48 : 32,
                                     color: Colors.white,
                                   ),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    'Weather App',
+                                    style: TextStyle(
+                                      fontSize: isLarge ? 32 : 24,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                        
+                            // Search & Add City
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                SizedBox(
+                                  width: isLarge ? 300 : 200,
+                                  height: 40,
+                                  child: TextField(
+                                    controller: _cityController,
+                                    style: const TextStyle(color: Colors.white),
+                                    decoration: InputDecoration(
+                                      hintText: 'Enter city name',
+                                      hintStyle:
+                                          TextStyle(color: Colors.grey[400]),
+                                      filled: true,
+                                      fillColor: Colors.grey[900],
+                                      border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(6),
+                                        borderSide: BorderSide.none,
+                                      ),
+                                      contentPadding: const EdgeInsets.symmetric(
+                                          horizontal: 12, vertical: 8),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                ElevatedButton(
+                                  onPressed: () {
+                                    if (_cityController.text.isNotEmpty) {
+                                      addCityByName(_cityController.text);
+                                    }
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.blueGrey[800],
+                                    foregroundColor: Colors.white,
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 16, vertical: 12),
+                                  ),
+                                  child: const Text('Add City'),
                                 ),
                               ],
                             ),
-                          ),
-
-                          // Search & Add City
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              SizedBox(
-                                width: isLarge ? 300 : 200,
-                                height: 40,
-                                child: TextField(
-                                  controller: _cityController,
-                                  style: const TextStyle(color: Colors.white),
-                                  decoration: InputDecoration(
-                                    hintText: 'Enter city name',
-                                    hintStyle:
-                                        TextStyle(color: Colors.grey[400]),
-                                    filled: true,
-                                    fillColor: Colors.grey[900],
-                                    border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(6),
-                                      borderSide: BorderSide.none,
-                                    ),
-                                    contentPadding: const EdgeInsets.symmetric(
-                                        horizontal: 12, vertical: 8),
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: 8),
-                              ElevatedButton(
-                                onPressed: () {
-                                  if (_cityController.text.isNotEmpty) {
-                                    addCityByName(_cityController.text);
-                                  }
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.blueGrey[800],
-                                  foregroundColor: Colors.white,
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 16, vertical: 12),
-                                ),
-                                child: const Text('Add City'),
-                              ),
-                            ],
-                          ),
-
-                          const SizedBox(height: 68),
-
-                          // City Cards
-                          Wrap(
-                            spacing: 24,
-                            runSpacing: 24,
-                            alignment: WrapAlignment.center,
-                            children:
-                                List.generate(cityWeatherList.length, (index) {
-                              final city = cities[index];
-                              final weather = cityWeatherList[index];
-                              final gradient =
-                                  gradients[index % gradients.length];
-
-                              return SizedBox(
-                                width: isLarge ? 500 : 350,
-                                child: CityWeatherCard(
-                                  city: city,
-                                  weather: weather,
-                                  gradient: gradient,
-                                  fontSize: fontSize,
-                                  onRemove: () => removeCity(index),
-                                ),
-                              );
-                            }),
-                          ),
-                        ],
+                        
+                            const SizedBox(height: 68),
+                        
+                            // City Cards
+                            Wrap(
+                              spacing: 24,
+                              runSpacing: 24,
+                              alignment: WrapAlignment.center,
+                              children:
+                                  List.generate(cityWeatherList.length, (index) {
+                                final city = cities[index];
+                                final weather = cityWeatherList[index];
+                                final gradient =
+                                    gradients[index % gradients.length];
+                        
+                                return SizedBox(
+                                    width: isLarge ? 500 : 350,
+                                    child: CityWeatherCard(
+                                      city: city,
+                                      weather: weather,
+                                      gradient: gradient,
+                                      fontSize: fontSize,
+                                      onRemove: () => removeCity(index),
+                                      onTap: () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (_) => CityWeatherPage(
+                                              cityName: city['CityName'],
+                                              date: DateFormat('h.mma, MMM d')
+                                                  .format(DateTime.now())
+                                                  .toLowerCase(),
+                                              weather: weather,
+                                              bgColor: gradient,
+                                              onBack: () =>
+                                                  Navigator.pop(context),
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                    ));
+                              }),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
@@ -232,12 +254,12 @@ class _HomePageState extends State<HomePage> {
                   Container(
                     width: double.infinity,
                     padding: const EdgeInsets.symmetric(vertical: 16),
-                    color: Colors.grey[900], 
+                    color: Colors.grey[900],
                     alignment: Alignment.center,
                     child: const Text(
                       '2025 Fidenz Technologies',
                       style: TextStyle(
-                        color: Colors.grey, 
+                        color: Colors.grey,
                         fontSize: 14,
                         fontWeight: FontWeight.w400,
                       ),
