@@ -17,6 +17,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  Map<int, Map<String, dynamic>> cache = {};
   final String? apiKey = dotenv.env['API_KEY'];
   List<Map<String, dynamic>> cityWeatherList = [];
   List<dynamic> cities = [];
@@ -48,10 +49,30 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> fetchWeatherForCity(Map<String, dynamic> city) async {
+    final int cityId = int.parse(city['CityCode']);
+
+    if (cache.containsKey(cityId)) {
+      final cashedEntry = cache[cityId]!;
+      final int cashedTime = cashedEntry['timestamp'];
+      final int now = DateTime.now().millisecondsSinceEpoch;
+
+      if (now -cashedTime < 5 *60 * 1000) {
+        debugPrint("Using cached data for ${city['CityName']}");
+        setState(() {
+          cityWeatherList.add(cashedEntry['data']);
+        });
+        return;
+      }
+    }
+
     try {
       final res = await fetchWeatherCity(city, apiKey);
       if (res.statusCode == 200) {
         final data = jsonDecode(res.body);
+
+        // save cash 
+        cache[cityId] = {'timestamp': DateTime.now().millisecondsSinceEpoch, 'data': data};
+
         setState(() {
           cityWeatherList.add(data);
         });
